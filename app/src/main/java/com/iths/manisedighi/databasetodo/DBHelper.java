@@ -119,7 +119,9 @@ public class DBHelper extends SQLiteOpenHelper{
         if(success){
             do{
                 Category category = new Category();
+                category.setCategoryId(c.getInt(c.getColumnIndex(DBHelper.CATEGORY_ID)));
                 category.setCategoryName(c.getString(c.getColumnIndex(DBHelper.CATEGORY_NAME)));
+                categoryList.add(category);
             }while(c.moveToNext());
         }
 

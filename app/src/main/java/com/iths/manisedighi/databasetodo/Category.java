@@ -34,6 +34,10 @@ public class Category {
         this.categoryName = categoryName;
     }
 
+    public String toString(){
+        return this.categoryName;
+    }
+
 
 
 }
