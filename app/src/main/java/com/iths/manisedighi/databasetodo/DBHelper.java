@@ -17,7 +17,7 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper{
 
     private static final String DBLOG = "TODOAPP";
-    private static final String DB_NAME = "todo11.db";
+    private static final String DB_NAME = "todo13.db";
     private static final int DB_VERSION = 1;
 
     // Todolist table
@@ -102,10 +102,24 @@ public class DBHelper extends SQLiteOpenHelper{
         return todolistTask;
     }
 
+    public List<UserInfo> getAllUsers(){
+        List<UserInfo> userInfoList = new ArrayList<>();
+        SQLiteDatabase db = getReadableDatabase();
 
+        Cursor c = db.query(TABLE_USER, null,null,null,null,null,null);
 
+        boolean success = c.moveToFirst();
 
-
+        if (success){
+            do{
+                UserInfo userInfo = new UserInfo();
+                userInfo.setUserId(c.getInt(c.getColumnIndex(DBHelper.USER_ID)));
+                userInfo.setUserName(c.getString(c.getColumnIndex(DBHelper.USER_NAME)));
+                userInfoList.add(userInfo);
+            }while(c.moveToNext());
+        }
+        return userInfoList;
+    }
 
 
     public List<Category> getAllCategories(){

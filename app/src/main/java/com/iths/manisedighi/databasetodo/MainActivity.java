@@ -9,23 +9,18 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     DBHelper dbHelper = new DBHelper(this);
-    private ArrayAdapter adapter;
-
-
-
+    private UserInfo userInfo = new UserInfo();
     TodoInfo todoInfo = new TodoInfo();
     ListView myListView;
-    private List<Integer> categoryArray = new ArrayList<Integer>();
-    private List<TodoInfo> todoList = new ArrayList<>();
-
-
+    private Spinner userSpinner;
+    private String user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +28,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         findViews();
-
+        showUser();
         findNotes();
+
+        Log.i("Spinner", "SELECTED category: " + userSpinner.getSelectedItem());
 
         Log.i("Todos: ", todoInfo.getTodolistId() + ", "
                 + todoInfo.getTodolistTask() + ", " + todoInfo.getTodolistCategoryId());
@@ -47,27 +44,28 @@ public class MainActivity extends AppCompatActivity {
                 i.putExtra("todoId", id);
                 i.putExtra("todoNote", dbHelper.getTodoById(position).getTodolistTask());
                 startActivity(i);
-
-
             }
         });
 
     }
 
+    public void showUser(){
+        List<UserInfo> userInfoList =  dbHelper.getAllUsers();
+        ArrayAdapter<UserInfo> adapter = new ArrayAdapter<UserInfo>(this, android.R.layout.simple_spinner_item, userInfoList);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        userSpinner.setAdapter(adapter);
 
-
+    }
 
 
     public void onOKclicked(View v){
         Intent intent = new Intent(this, AddTaskActivity.class);
         startActivity(intent);
-
-
-        //Log.i("Spinner", "SELECTED category: " + categorySpinner.getSelectedItem());
     }
 
     public void findViews(){
         myListView = findViewById(R.id.myListView);
+        userSpinner = findViewById(R.id.userSpinner);
     }
 
 
@@ -76,25 +74,6 @@ public class MainActivity extends AppCompatActivity {
     public void findNotes(){
         ListAdapter itemAdapter = new ItemAdapter(this, dbHelper.getTodoList());
         myListView.setAdapter(itemAdapter);
-
-
-
-
-        /*
-        todoList = dbHelper.getTodoList();
-
-        for (int i = 0;  i < todoList.size(); i++){
-            categoryArray.add(todoList.get(i).getTodolistCategoryId());
-        }
-        */
-
-
-        /*
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, stringArray);
-        myListView.setAdapter(adapter);
-        */
-
-
     }
 
 
