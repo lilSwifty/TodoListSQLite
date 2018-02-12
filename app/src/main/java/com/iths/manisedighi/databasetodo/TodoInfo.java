@@ -6,7 +6,7 @@ package com.iths.manisedighi.databasetodo;
 
 public class TodoInfo {
 
-    private int todolistId;
+    private long todolistId;
     private String todolistTask;
     private int todolistCategoryId;
 
@@ -14,18 +14,24 @@ public class TodoInfo {
 
     }
 
-    public TodoInfo(int todolistId, String todolistTask, int todolistCategoryId){
+    public TodoInfo(long todolistId, String todolistTask, int todolistCategoryId){
         this.todolistId = todolistId;
         this.todolistTask = todolistTask;
         this.todolistCategoryId = todolistCategoryId;
     }
 
-    public int getTodolistId() {
+    public TodoInfo(String todolistTask, int todolistCategoryId){
+        this.todolistTask = todolistTask;
+        this.todolistCategoryId = todolistCategoryId;
+
+    }
+
+    public long getTodolistId() {
 
         return todolistId;
     }
 
-    public void setTodolistId(int todolistId){
+    public void setTodolistId(long todolistId){
         this.todolistId = todolistId;
     }
 

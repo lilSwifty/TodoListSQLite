@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">databaseTodo</string>
+    <string name="newNote">New Note</string>
+    <string name="addNew">Add to list</string>
 </resources>

@@ -1,54 +1,101 @@
 package com.iths.manisedighi.databasetodo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.Spinner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    private Spinner categorySpinner;
     DBHelper dbHelper = new DBHelper(this);
+    private ArrayAdapter adapter;
 
+
+
+    TodoInfo todoInfo = new TodoInfo();
     ListView myListView;
-    String [] tasks;
-    String [] categories;
+    private List<Integer> categoryArray = new ArrayList<Integer>();
+    private List<TodoInfo> todoList = new ArrayList<>();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        dbHelper.getTodoList();
-        dbHelper.getAllCategories();
         findViews();
-        showCategories();
-        dbHelper.testAllCategories();
 
-        Log.i("Spinner", "SELECTED category: " + categorySpinner.getSelectedItem());
-        //dbHelper.onUpgrade();
+        findNotes();
+
+        Log.i("Todos: ", todoInfo.getTodolistId() + ", "
+                + todoInfo.getTodolistTask() + ", " + todoInfo.getTodolistCategoryId());
+
+        myListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                Intent i = new Intent(getApplicationContext(),EditActivity.class);
+                i.putExtra("todoId", id);
+                i.putExtra("todoNote", dbHelper.getTodoById(position).getTodolistTask());
+                startActivity(i);
+
+
+            }
+        });
+
     }
 
-    public void showCategories(){
-        List<Category> categoryItems =  dbHelper.getAllCategories();
-        ArrayAdapter<Category> adapter = new ArrayAdapter<Category>(this, android.R.layout.simple_spinner_item, categoryItems);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        categorySpinner.setAdapter(adapter);
-        Log.i("Spinner", "SELECTED category: " + categorySpinner.getSelectedItem());
-    }
 
-    private void findViews(){
-        categorySpinner = findViewById(R.id.categorySpinner);
-        myListView = findViewById(R.id.myListView);
 
-    }
+
 
     public void onOKclicked(View v){
-        Log.i("Spinner", "SELECTED category: " + categorySpinner.getSelectedItem());
+        Intent intent = new Intent(this, AddTaskActivity.class);
+        startActivity(intent);
+
+
+        //Log.i("Spinner", "SELECTED category: " + categorySpinner.getSelectedItem());
     }
+
+    public void findViews(){
+        myListView = findViewById(R.id.myListView);
+    }
+
+
+
+
+    public void findNotes(){
+        ListAdapter itemAdapter = new ItemAdapter(this, dbHelper.getTodoList());
+        myListView.setAdapter(itemAdapter);
+
+
+
+
+        /*
+        todoList = dbHelper.getTodoList();
+
+        for (int i = 0;  i < todoList.size(); i++){
+            categoryArray.add(todoList.get(i).getTodolistCategoryId());
+        }
+        */
+
+
+        /*
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, stringArray);
+        myListView.setAdapter(adapter);
+        */
+
+
+    }
+
+
 }

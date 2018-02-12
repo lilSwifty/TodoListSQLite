@@ -1,5 +1,6 @@
 package com.iths.manisedighi.databasetodo;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -16,12 +17,12 @@ import java.util.List;
 public class DBHelper extends SQLiteOpenHelper{
 
     private static final String DBLOG = "TODOAPP";
-    private static final String DB_NAME = "todo.db";
+    private static final String DB_NAME = "todo11.db";
     private static final int DB_VERSION = 1;
 
     // Todolist table
     public static final String TABLE_TODOLIST = "todolist";
-    public static final String TODOLIST_ID = "todolistId";
+    public static final String TODOLIST_ID = "_id";
     public static final String TODOLIST_TASK = "todolistTask";
     public static final String TODOLIST_CATEGORY_ID = "todolistCategoryId";
 
@@ -62,8 +63,6 @@ public class DBHelper extends SQLiteOpenHelper{
 
 
 
-
-
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(TABLE_TODOLIST_CREATE);
@@ -73,8 +72,8 @@ public class DBHelper extends SQLiteOpenHelper{
 
         db.execSQL("INSERT INTO user (userName) VALUES ('Mani')");
         db.execSQL("INSERT INTO category (categoryName) VALUES ('Hem'), ('Skola'), ('Jobb')");
-        db.execSQL("INSERT INTO todolist (todolistTask , todolistCategoryId)" + "VALUES ('Städa!', 0), " +
-        "('VG i Objective C', 1), " + "('Sök jobb', 2)");
+        db.execSQL("INSERT INTO todolist (todolistTask , todolistCategoryId)" + "VALUES ('Städa!', 1), " +
+        "('VG i Databashantering', 2), " + "('Sök jobb', 3)");
 
 
         //db.execSQL("delete from "+ TABLE_TODOLIST);
@@ -90,9 +89,9 @@ public class DBHelper extends SQLiteOpenHelper{
         if (c.getCount() > 0){
             while(c.moveToNext()){
                 TodoInfo todoInfo = new TodoInfo();
-                todoInfo.setTodolistId(c.getInt(c.getColumnIndex(DBHelper.TODOLIST_ID)));
-                todoInfo.setTodolistTask(c.getString(c.getColumnIndex(DBHelper.TODOLIST_TASK)));
-                todoInfo.setTodolistCategoryId(c.getInt(c.getColumnIndex(DBHelper.TODOLIST_CATEGORY_ID)));
+                todoInfo.setTodolistId(c.getInt(0));
+                todoInfo.setTodolistTask(c.getString(1));
+                todoInfo.setTodolistCategoryId(c.getInt(2));
                 todolistTask.add(todoInfo);
 
                 Log.i("Todos: ", todoInfo.getTodolistId() + ", "
@@ -103,10 +102,11 @@ public class DBHelper extends SQLiteOpenHelper{
         return todolistTask;
     }
 
-    public Cursor getAllCategoriesCursor(){
-        SQLiteDatabase db = getReadableDatabase();
-        return db.query(TABLE_CATEGORY, null, null, null, null, null, null, null);
-    }
+
+
+
+
+
 
     public List<Category> getAllCategories(){
         List<Category> categoryList = new ArrayList<>();
@@ -128,40 +128,11 @@ public class DBHelper extends SQLiteOpenHelper{
         return categoryList;
     }
 
-    public List<TodoInfo> testAllCategories(){
-        List<TodoInfo>  categoryItems = new ArrayList<>();
-        SQLiteDatabase db = getReadableDatabase();
 
+    public void addTodo(SQLiteDatabase db, TodoInfo todoInfo){
 
-        String query = "SELECT * FROM " + "category INNER JOIN todolist ON " +
-                "category.categoryId = todolist.todolistCategoryId;";
-
-
-        /*String query = " SELECT todolistTask, todolistId FROM todolist INNER JOIN category ON "
-                + "category.categoryId = todolist.todolistCategoryId;";*/
-
-        Cursor c = db.rawQuery(query, null);
-
-        Log.i(DBLOG, "todos/category: " + c.getCount());
-
-        if (c.getCount() > 0){
-            while(c.moveToNext()){
-                TodoInfo todoInfo = new TodoInfo();
-                Category category = new Category();
-
-                todoInfo.setTodolistId(c.getInt(c.getColumnIndex(DBHelper.TODOLIST_ID)));
-                todoInfo.setTodolistTask(c.getString(c.getColumnIndex(DBHelper.TODOLIST_TASK)));
-                todoInfo.setTodolistCategoryId(c.getInt(c.getColumnIndex(DBHelper.TODOLIST_CATEGORY_ID)));
-                category.setCategoryId(c.getInt(c.getColumnIndex(DBHelper.CATEGORY_ID)));
-                category.setCategoryName(c.getString(c.getColumnIndex(DBHelper.CATEGORY_NAME)));
-                categoryItems.add(todoInfo);
-
-                Log.i("Return items/category: ", todoInfo.getTodolistId() + " id , Task: "
-                        + todoInfo.getTodolistTask()+ ", Category: " + category.getCategoryName());
-            }
-//todoInfo.getTodolistCategoryId()
-        }
-        return categoryItems;
+        db.execSQL("INSERT INTO todoList(todolistTask , todolistCategoryId) VALUES ('"
+                + todoInfo.getTodolistTask()+"', "+ todoInfo.getTodolistCategoryId() +");");
     }
 
 
@@ -179,5 +150,65 @@ public class DBHelper extends SQLiteOpenHelper{
     public DBHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
+
+    public TodoInfo getTodoById(long id){
+        String selection = "_id=?";
+        String[] selectionArgs = new String[]{Long.toString(id)};
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.query(TABLE_TODOLIST,null,selection,selectionArgs,null,null,null);
+
+        boolean success = cursor.moveToFirst();
+
+        TodoInfo todoInfo = new TodoInfo();
+
+        if (success){
+            do{
+              todoInfo.setTodolistId(cursor.getInt(0));
+              todoInfo.setTodolistTask(cursor.getString(1));
+              todoInfo.setTodolistCategoryId(cursor.getInt(2));
+
+
+            }while (cursor.moveToNext());
+        }
+
+        return todoInfo;
+    }
+
+    public void deleteTask(long id){
+        SQLiteDatabase db = getWritableDatabase();
+        String[] selectionArgs = new String[]{Long.toString(id)};
+        int result = db.delete(TABLE_TODOLIST, " _id=?", selectionArgs);
+    }
+
+    public void editTask(long id, String task){
+        SQLiteDatabase db = getWritableDatabase();
+        ContentValues values = new ContentValues();
+
+        values.put(TODOLIST_TASK, task);
+
+        String selection = "_id=?";
+        String[] selectionArgs = new String[] {Long.toString(id)};
+        int result = db.update(TABLE_TODOLIST, values, selection, selectionArgs);
+
+    }
+
+
+
+    /*
+
+
+        String query = "SELECT * FROM " + "category INNER JOIN todolist ON " +
+                "category.categoryId = todolist.todolistCategoryId;";
+
+
+        String query = " SELECT todolistTask, todolistId FROM todolist INNER JOIN category ON "
+                + "category.categoryId = todolist.todolistCategoryId;";
+
+    Cursor c = db.rawQuery(query, null);
+
+        Log.i(DBLOG, "todos/category: " + c.getCount());
+
+
+     */
 
 }
